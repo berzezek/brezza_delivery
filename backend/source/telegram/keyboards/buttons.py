@@ -13,14 +13,14 @@ delivery.add(delivery.button)
 admin = InlineKeyboardBuilder()
 
 admin.button = InlineKeyboardButton(
-    text="Список заказов за сегодня",
+    text="Отчет сегодня",
     callback_data=list_today_orders.pack()
     )
 
 admin.add(admin.button)
 
 admin.button = InlineKeyboardButton(
-    text="Список заказов за месяц",
+    text="Отчет месяц",
     callback_data=list_month_orders.pack()
     )
 

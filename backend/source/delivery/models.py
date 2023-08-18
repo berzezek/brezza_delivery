@@ -1,5 +1,5 @@
-from datetime import timedelta
 from django.db import models
+from django.utils import timezone
 
 
 class Customer(models.Model):
@@ -48,7 +48,9 @@ class Order(models.Model):
         ordering = ['-dead_line']
 
     def __str__(self):
-        return f'{self.customer.title} / {self.dead_line}'
+        local_deadline = timezone.localtime(self.dead_line)
+        local_deadline_weekday = local_deadline.strftime('%A')
+        return f'{self.customer.title} / {local_deadline_weekday}-{local_deadline.strftime("%H:%M")}'
 
 
 class Schedule(models.Model):
@@ -75,6 +77,7 @@ class Schedule(models.Model):
     class Meta:
         verbose_name = 'Расписание'
         verbose_name_plural = 'Расписания'
+        ordering = ['day_of_week', 'schedule_time']
 
     def __str__(self):
         return f'{self.get_day_of_week_display()} {self.convert_to_hour_minute()}'
@@ -82,16 +85,31 @@ class Schedule(models.Model):
 
 class DeliverySchedule(models.Model):
 
-    customer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
-    delivery_shedule = models.ManyToManyField(Schedule)
+    customer = models.ForeignKey(Customer, verbose_name='Заказчик', on_delete=models.DO_NOTHING)
+    delivery_schedule = models.ManyToManyField(Schedule,  verbose_name='Расписание')
 
     def get_schedule_list_to_str(self):
-        return ', '.join([str(schedule) for schedule in self.delivery_shedule.all()])
+        # Группировка по дням недели
+        grouped = {}
+        for schedule in self.delivery_schedule.all():
+            day = schedule.get_day_of_week_display().lower()
+            time = schedule.convert_to_hour_minute()
+            if day not in grouped:
+                grouped[day] = []
+            grouped[day].append(time)
+
+        # Форматирование для вывода
+        result_list = []
+        for day, times in grouped.items():
+            result_list.append(f"{day}: {' * '.join(times)}")
+
+        return ', '.join(result_list)
 
 
     class Meta:
         verbose_name = 'Расписание заказа'
         verbose_name_plural = 'Расписание заказов'
+        ordering = ['customer']
 
 
     def __str__(self):

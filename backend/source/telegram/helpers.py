@@ -217,11 +217,44 @@ def adjust_five_hour(date_str: str) -> str:
         return None
 
 # Вместо timedelta возвращаем строку вида 00:00
-def convert_to_time_string(value):
+def convert_to_time_string(value: str):
     try:
-        value = float(value)
-        hours = int(value // 3600)
-        minutes = int((value % 3600) // 60)
+        # Преобразование строки в объект timedelta
+        hours, minutes, seconds = map(float, value.split(':'))
+        total_seconds = int(hours * 3600 + minutes * 60 + seconds)
+        
+        # Получение часов и минут из общего количества секунд
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
         return f"{hours:02}:{minutes:02}"
     except:
         return None
+    
+def convert_second_to_hour_minute(value: int):
+    try:
+        # Получение часов и минут из общего количества секунд
+        hours = value // 3600
+        minutes = (value % 3600) // 60
+        return f"{hours:02}:{minutes:02}"
+    except:
+        return None
+    
+# Получение сегодняшнего заказа по названию заказчика и времени доставки
+@aiohttp_session
+async def get_today_order_by_customer_title_and_schedule_time(session, customer_title: str, schedule_time: str):
+    try:
+        async with session.get(f'{HOST_URL}/api/v1/orders?customer={customer_title}&list=today&schedule_time={schedule_time}') as response:
+            if response.status == 200:
+                possible_orders = await response.json()
+                if len(possible_orders) > 0:
+                    return possible_orders[0]
+            else:
+                print(f"Error: {response.status}")
+    except Exception as e:
+        print(f"Error: {e}")
+    return None
+
+# Преобразование строки в секунды
+def time_to_seconds(timestr: str) -> int:
+    hours, minutes, seconds = timestr.split(':')
+    return int(hours) * 3600 + int(minutes) * 60 + int(float(seconds))

@@ -1,51 +1,64 @@
-from delivery.models import Order, DeliverySchedule
-from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from django_celery_beat.models import PeriodicTask, IntervalSchedule, CrontabSchedule
 from celery import shared_task
-from django.utils import timezone
-import datetime
+from delivery.utils import create_today_orders, delivered_time_to_deadline
 
 
-def create_every_hour_task():
+def create_my_task():
+    # Удаляем все интервалы и задачи, которые были созданы ранее
+    IntervalSchedule.objects.all().delete()
+    PeriodicTask.objects.all().delete()
+
     # Создаем или получаем интервал в один час
-    interval, _ = IntervalSchedule.objects.get_or_create(
+    interval_one_hour, _ = IntervalSchedule.objects.get_or_create(
         every=1,
         period=IntervalSchedule.HOURS,
     )
 
-    # Ваша celery задача
-    task_name = 'delivery.tasks.create_dayly_orders'
+    crontab_every_night, _ = CrontabSchedule.objects.get_or_create(
+        minute=59,
+        hour=23,
+    )
+
+    crontab_every_evening, _ = CrontabSchedule.objects.get_or_create(
+        minute=0,
+        hour=20,
+    )
+
 
     # Создаем или получаем задачу, которая будет выполняться каждый час
     PeriodicTask.objects.get_or_create(
-        interval=interval,
-        name=f"Run {task_name} every hour",  # Уникальное имя для этой задачи
-        task=task_name,  # Имя вашей celery задачи, которую нужно запустить
+        interval=interval_one_hour,
+        name=f"Создание заказов по расписанию",  # Уникальное имя для этой задачи
+        task="delivery.tasks.create_dayly_orders",  # Имя вашей celery задачи, которую нужно запустить
     )
 
-def create_today_orders():
-    today = timezone.localtime(timezone.now()).date()
-    current_local_time = timezone.localtime(timezone.now()).time()
+    # Создаем или получаем задачу, которая будет выполняться в 23:59
+    PeriodicTask.objects.get_or_create(
+        crontab=crontab_every_night,
+        name=f"Закрытие всех необработанных заказов",  # Уникальное имя для этой задачи
+        task='delivery.tasks.set_delivered_time_to_deadline',  # Имя вашей celery задачи, которую нужно запустить
+    )
 
-    delivery_schedules = DeliverySchedule.objects.all()
-    for ds in delivery_schedules:
-        if ds.delivery_shedule.exists():  # используйте `.exists()` для проверки наличия связанных объектов
-            for schedule in ds.delivery_shedule.all():
-                # если день совпадает с сегодняшним днем
-                # и текущее время в промежутке между временем доставки и временем доставки минус 1 час 10 минут
-                time_threshold = (timezone.localtime(timezone.now()) - timezone.timedelta(hours=1, minutes=10)).time()
-                if schedule.day_of_week == str(today.weekday()) and time_threshold <= current_local_time <= schedule.schedule_time:
-                    # создание заказа с учетом временной зоны
-                    naive_deadline = datetime.datetime.combine(today, schedule.schedule_time)
-                    aware_deadline = timezone.make_aware(naive_deadline)
-                    order, created = Order.objects.get_or_create(
-                        customer=ds.customer,
-                        dead_line=aware_deadline
-                    )
-                    if created:
-                        print(f'Создан заказ для {ds.customer.title} на {aware_deadline}')
+    # Создаем или получаем задачу, которая будет выполняться в 20:00
+    PeriodicTask.objects.get_or_create(
+        crontab=crontab_every_evening,
+        name=f"Отправка отчета админу",  # Уникальное имя для этой задачи
+        task='delivery.tasks.send_report_to_admin',  # Имя вашей celery задачи, которую нужно запустить
+    )
 
-
+# Создаем заказы по расписанию
 @shared_task
 def create_dayly_orders():
     print('Запущена задача создания заказов')
     create_today_orders()
+
+# Закрываем заказы по расписанию в 23:59
+@shared_task
+def set_delivered_time_to_deadline():
+    print('Запущена задача закрытия необработанных заказов')
+    delivered_time_to_deadline()
+    
+@shared_task
+def send_report_to_admin():
+    print('Запущена задача отправки отчета админу')
+    pass
