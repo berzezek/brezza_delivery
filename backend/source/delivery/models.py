@@ -8,7 +8,7 @@ class Customer(models.Model):
     description = models.TextField(blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Заказчик'
+        verbose_name = 'Заказчика'
         verbose_name_plural = 'Заказчики'
 
     def __str__(self):

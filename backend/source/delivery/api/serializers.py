@@ -47,6 +47,7 @@ class ScheduleWithOrderInfoSerializer(serializers.ModelSerializer):
 
 class DeliveryScheduleSerializer(serializers.ModelSerializer):
     customer = serializers.CharField(source='customer.title')
+    customer_description = serializers.CharField(source='customer.description')
     delivery_schedule = serializers.SerializerMethodField()
     
     class Meta:
@@ -54,6 +55,7 @@ class DeliveryScheduleSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'customer',
+            'customer_description',
             'delivery_schedule',
         )
 

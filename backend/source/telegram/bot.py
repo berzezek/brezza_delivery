@@ -1,14 +1,13 @@
-import logging
 import asyncio
-from aiogram.fsm.strategy import FSMStrategy
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from config import TELEGRAM_BOT_TOKEN
 
 from handlers import (
     delivery_bot,
     admin_bot,
 )
-from config import TELEGRAM_BOT_TOKEN
+
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
 

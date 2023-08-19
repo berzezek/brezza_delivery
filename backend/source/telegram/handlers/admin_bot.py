@@ -9,13 +9,12 @@ from helpers import (
     get_list_range_possible_orders,
     convert_to_time_string,
     get_today_order_by_customer_title_and_schedule_time,
-    time_to_seconds,
-    convert_second_to_hour_minute,
 )
 from keyboards import buttons
 from keyboards.filters import MyCallback
 
 from config import ADMIN_USERS
+ADMIN_USERS = ('88938160', )
 
 router = Router()
 
@@ -40,7 +39,7 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
     # Формирование сообщения с заказами
     message_text = "Доставки на сегодня:\n\n"
     for possible_order in list_today_possible_orders:
-        customer_name = possible_order.get("customer")
+        customer_name = possible_order.get("customer_description")
         schedules_text = f"Заказчик {customer_name}:\n"
         for schedule in possible_order.get("delivery_schedule"):
             schedule_time = schedule.get("schedule_time")

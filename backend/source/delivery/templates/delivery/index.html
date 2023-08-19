@@ -17,7 +17,7 @@
           class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
           <div class="flex items-center flex-1 space-x-4">
             <h5>
-              <span class="text-gray-500">Все заказчики:</span>
+              <span class="text-gray-500">Все заказы:</span>
               <span class="dark:text-white">{{ customers.count }}</span>
             </h5>
           </div>
@@ -39,6 +39,7 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th scope="col" class="px-4 py-3">Заказчик</th>
+                <th scope="col" class="px-4 py-3">код</th>
                 <th scope="col" class="px-4 py-3">Понедельник</th>
                 <th scope="col" class="px-4 py-3">Вторник</th>
                 <th scope="col" class="px-4 py-3">Среда</th>
@@ -53,8 +54,9 @@
               <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <th scope="row"
                   class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {{ customer.title }}
+                  {{ customer.description }}
                 </th>
+                <td class="px-4 py-2">{{ customer.title }}</td>
                 <td class="px-4 py-2">{{ customer.понедельник }}</td>
                 <td class="px-4 py-2">{{ customer.вторник }}</td>
                 <td class="px-4 py-2">{{ customer.среда }}</td>

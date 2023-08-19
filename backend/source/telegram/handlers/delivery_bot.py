@@ -94,7 +94,7 @@ async def customer_enter(message: Message, state: FSMContext):
 
     if response:
         # Отправляем сообщение о успешной привязке
-        await send_success_subscribe_message(message, state, customer['title'])
+        await send_success_subscribe_message(message, state, customer['description'])
         await state.set_state(SubscribeFileReceiver.finished)
     else:
         await send_subscription_error_message(message, state)

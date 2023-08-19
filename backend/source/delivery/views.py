@@ -10,6 +10,7 @@ def get_customer_schedules():
     for customer in customers:
         customer_data = {}
         customer_data['title'] = customer.title
+        customer_data['description'] = customer.description
 
         # Если у заказчика есть расписание, обработаем его
         try:

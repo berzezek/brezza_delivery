@@ -9,9 +9,9 @@ def create_my_task():
     PeriodicTask.objects.all().delete()
 
     # Создаем или получаем интервал в один час
-    interval_one_hour, _ = IntervalSchedule.objects.get_or_create(
-        every=1,
-        period=IntervalSchedule.HOURS,
+    interval_ten_minutes, _ = IntervalSchedule.objects.get_or_create(
+        every=10,
+        period=IntervalSchedule.MINUTES,
     )
 
     crontab_every_night, _ = CrontabSchedule.objects.get_or_create(
@@ -27,7 +27,7 @@ def create_my_task():
 
     # Создаем или получаем задачу, которая будет выполняться каждый час
     PeriodicTask.objects.get_or_create(
-        interval=interval_one_hour,
+        interval=interval_ten_minutes,
         name=f"Создание заказов по расписанию",  # Уникальное имя для этой задачи
         task="delivery.tasks.create_dayly_orders",  # Имя вашей celery задачи, которую нужно запустить
     )

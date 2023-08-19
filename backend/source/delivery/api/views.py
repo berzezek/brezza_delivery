@@ -48,20 +48,17 @@ class TgServiceViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return OrderGetSerializer
-        return super().get_serializer_class()
+    def get_queryset(self):
+        queryset = super(OrderViewSet, self).get_queryset()
+        return queryset.select_related('customer')
 
     def list(self, request):
-        # get today orders
         list_range = request.GET.get('range')
         customer = request.GET.get('customer')
         delivered = request.GET.get('delivered')
         schedule_time = request.GET.get('schedule_time')
-        queryset = Order.objects.all()
+        queryset = self.get_queryset()
         if customer:
             queryset = queryset.filter(customer__title__iexact=customer)
         if list_range == 'today':
@@ -76,21 +73,21 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+
 class DeliveryScheduleViewSet(viewsets.ModelViewSet):
     queryset = DeliverySchedule.objects.all()
     serializer_class = DeliveryScheduleSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super(DeliveryScheduleViewSet, self).get_queryset()
+        return queryset.select_related('customer').prefetch_related('delivery_schedule')
 
     def list(self, request):
-        queryset = DeliverySchedule.objects.all()
+        queryset = self.get_queryset()
         list_range = request.GET.get('range')
         if list_range == 'today':
-            # Получить текущий день недели
             current_weekday = str(timezone.localtime(timezone.now()).weekday())
-            # Найти все записи `Schedule` для этого дня недели
             schedules_for_today = Schedule.objects.filter(day_of_week=current_weekday)
-            # Найти все записи `DeliverySchedule`, которые содержат найденные записи `Schedule`
-            queryset = DeliverySchedule.objects.filter(delivery_schedule__in=schedules_for_today).distinct()
-
+            queryset = queryset.filter(delivery_schedule__in=schedules_for_today).distinct()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
