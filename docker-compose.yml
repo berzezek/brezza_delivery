@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    command: /start
+    restart: on-failure
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    expose:
+      - 8000
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=brezza_laundry
+      - POSTGRES_PASSWORD=alpine12
+      - POSTGRES_DB=brezza_laundry
+
+  redis:
+    image: redis:7-alpine
+    restart: on-failure
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    command: /start-celerybeat
+    restart: on-failure
+    volumes:
+      - .:/app
+    environment:
+      CELERY_BROKER: redis://redis:6379/0
+      CELERY_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+      - web
+
+  aiogram:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    command: /start-telegram
+    restart: always
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./compose/local/nginx/Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./compose/local/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./compose/local/nginx/temp:/app/temp/nginx/client_body_temp
+    depends_on:
+      - web
+
+volumes:
+    postgres_data:

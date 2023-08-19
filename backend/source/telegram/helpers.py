@@ -4,8 +4,8 @@ from functools import wraps
 import requests
 from config import TELEGRAM_BOT_TOKEN, ADMIN_USERS
 
-# HOST_URL = 'http://web:8000'
-HOST_URL = 'http://localhost:8000'
+HOST_URL = 'http://web:8000'
+# HOST_URL = 'http://localhost:8000'
 
 # Отправка сообщения в телеграм администраторам
 def send_message_to_tg_user(text):

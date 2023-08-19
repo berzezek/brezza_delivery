@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+#rm -f './celerybeat.pid'
+figlet -c celery-beat
+celery -A core worker --beat --scheduler django --loglevel=info

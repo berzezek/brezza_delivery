@@ -36,8 +36,9 @@ async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     data = await state.get_data()
     chosen_customer = data.get('chosen_customer')
-    if chosen_customer:
-        await send_success_subscribe_message(message, state, chosen_customer)
+    chosen_customer_description = data.get('chosen_customer_description')
+    if chosen_customer and chosen_customer_description:
+        await send_success_subscribe_message(message, state, chosen_customer_description)
     else:
         await send_start_message(message, state)
 
@@ -46,8 +47,9 @@ async def cmd_start(message: Message, state: FSMContext):
 async def cmd_status(message: Message, state: FSMContext):
     data = await state.get_data()
     chosen_customer = data.get('chosen_customer')
-    if chosen_customer:
-        await send_success_subscribe_message(message, state, chosen_customer)
+    chosen_customer_description = data.get('chosen_customer_description')
+    if chosen_customer and chosen_customer_description:
+        await send_success_subscribe_message(message, state, chosen_customer_description)
     else:
         await send_start_message(message, state)
 
@@ -76,6 +78,7 @@ async def customer_enter(message: Message, state: FSMContext):
         return
 
     await state.update_data(chosen_customer=customer['title'])
+    await state.update_data(chosen_customer_description=customer['description'])
     tg_service = {
         'customer': customer['id'],
         'tg_id': message.chat.id,
