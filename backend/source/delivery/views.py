@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Customer, DeliverySchedule, Schedule
 
+
 def get_customer_schedules():
     data = []
 
@@ -16,15 +17,16 @@ def get_customer_schedules():
         try:
             delivery_schedule = DeliverySchedule.objects.get(customer=customer)
             schedules = delivery_schedule.delivery_schedule.all()
-            
+
             # Сначала заполняем все дни недели пустыми строками
             for _, day in Schedule.DAY_OF_WEEK_CHOICE:
                 customer_data[day.lower()] = ''
-            
+
             # Теперь заполняем расписанием для каждого дня
             for schedule in schedules:
                 day_name = schedule.get_day_of_week_display().lower()
-                if customer_data[day_name]:  # Если уже есть запись, добавляем второе время через *
+                # Если уже есть запись, добавляем второе время через *
+                if customer_data[day_name]:
                     customer_data[day_name] += f" • {schedule.convert_to_hour_minute()}"
                 else:
                     customer_data[day_name] = schedule.convert_to_hour_minute()

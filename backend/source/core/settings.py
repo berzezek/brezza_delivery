@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'delivery',
     'telegram',
 
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # CORS
+    'corsheaders.middleware.CorsMiddleware',  # CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -139,7 +139,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True # CORS
+CORS_ALLOW_ALL_ORIGINS = True  # CORS
 
 # Celery Configuration Options
 CELERY_TIMEZONE = "Asia/Tashkent"
@@ -152,7 +152,7 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_CACHE_BACKEND = 'default'
 
 
-try: 
+try:
     from .local_settings import *
 except ImportError:
     pass

@@ -13,12 +13,13 @@ from helpers import (
 from keyboards import buttons
 from keyboards.filters import MyCallback
 
-from config import ADMIN_USERS
-ADMIN_USERS = ('88938160', )
+ADMIN_USERS = ('88938160', '448321560', '214125454')
 
 router = Router()
 
 # Вход в админ панель
+
+
 @router.message(Command("admin"))
 async def cmd_admin(message: Message, state: FSMContext):
     await send_admin_message(message, state)
@@ -27,6 +28,8 @@ async def cmd_admin(message: Message, state: FSMContext):
 
 # TODO исправить delivered_time
 # Отчет о сегодняшних доставках
+
+
 @router.callback_query(MyCallback.filter(F.title == "list_today_orders"))
 async def list_today_orders(callback: CallbackQuery, state: FSMContext):
     # Получаем список возможных заказов на сегодня
@@ -59,15 +62,14 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
                 if overdue_time:
                     # Если есть время просрочки, добавляем значок восклицательного знака
                     status += f" \U00002757 {convert_to_time_string(overdue_time)} \U00002757"
-                    # '00:49:10.420511' to seconds 
-                    
+                    # '00:49:10.420511' to seconds
+
                 else:
                     # Если нет времени просрочки, добавляем значок галочки
                     status += " " + "\U00002705  " * 3
             schedules_text += f"• {schedule_time[:-3]} - {status}\n"
 
         message_text += schedules_text + "\n"
-    
 
     await callback.message.answer(message_text)
 
