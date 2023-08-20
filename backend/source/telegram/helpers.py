@@ -198,7 +198,7 @@ async def set_order_delivered_time(session, order_id: int, receiver_name: str):
         async with session.patch(f'{HOST_URL}/api/v1/orders/{order_id}/', json={
             'delivered_time': delivered_time_str,
             'receiver_name': receiver_name,
-            }) as response:
+        }) as response:
 
             if response.status == 200:
                 order = await response.json()
