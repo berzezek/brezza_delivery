@@ -15,4 +15,18 @@ celery -A core worker --beat --scheduler django --loglevel=info
 ```bash
 python3 bot.py
 ```
-951771677
+
+### Для подключения к SSH
+
+```bash
+ssh root@92.63.177.224
+```
+
+password: mxiPKk1T
+
+
+### Развертываем Docker
+
+```bash
+docker-compose up -d --build
+```
