@@ -58,7 +58,7 @@ def delivered_time_to_deadline():
         orders_to_update = Order.objects.filter(delivered_time__isnull=True)
 
         # Обновление всех выбранных объектов Order в одном запросе
-        orders_to_update.update(delivered_time=F('dead_line'))
+        orders_to_update.update(delivered_time=F('dead_line'), receiver_name='Вечернее закрытие')
 
     except Exception as e:
         print(e)
