@@ -9,8 +9,13 @@ from delivery.api.serializers import (
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-import datetime
+from datetime import datetime
 from django.utils import timezone
+from django.db.models.functions import ExtractWeekDay
+import pytz
+from django.db.models import IntegerField
+
+
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -54,7 +59,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return queryset.select_related('customer')
 
     def list(self, request):
-        list_range = request.GET.get('range')
+        list_range = request.GET.get('list')  # Используйте 'list' вместо 'range'
         customer = request.GET.get('customer')
         delivered = request.GET.get('delivered')
         schedule_time = request.GET.get('schedule_time')
@@ -62,8 +67,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         if customer:
             queryset = queryset.filter(customer__title__iexact=customer)
         if list_range == 'today':
-            today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            queryset = queryset.filter(dead_line__gte=today)
+            today_weekday = datetime.now(pytz.timezone('Asia/Tashkent')).isoweekday() % 7 + 1  # Convert to Django's week day numbering
+            queryset = queryset.annotate(weekday=ExtractWeekDay('dead_line', output_field=IntegerField())).filter(weekday=today_weekday)
         if delivered == 'false':
             queryset = queryset.filter(delivered_time__isnull=True)
         if schedule_time:

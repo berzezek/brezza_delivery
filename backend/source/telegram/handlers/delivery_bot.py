@@ -1,4 +1,5 @@
 from datetime import datetime
+import pytz
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -20,6 +21,7 @@ from helpers import (
 from keyboards import (
     buttons
 )
+from handlers.admin_bot import send_admin_message
 
 router = Router()
 
@@ -74,8 +76,13 @@ async def customer_enter(message: Message, state: FSMContext):
     customers_titles_lower = {
         customer['title'].lower() for customer in customers}
 
-    # Проверяем введенное заведение
     customer_lower = message.text.lower()
+    # Проверяем админа
+    if customer_lower == 'brezza':
+        await send_admin_message(message, state)
+        return
+
+    # Проверяем введенное заведение
     if customer_lower not in customers_titles_lower:
         await send_no_customer_message(message, state)
         return
@@ -112,7 +119,6 @@ async def customer_enter(message: Message, state: FSMContext):
     else:
         await send_subscription_error_message(message, state)
 
-# TODO Обработчик обрабатывает все заказы за сегодня, нужно исправить
 # Callback обработчик кнопки принять заказ
 
 
@@ -123,7 +129,9 @@ async def accept_order(callback: CallbackQuery, state: FSMContext):
     order = data.get('order')
     if order:
         receiver_name = data.get('receiver_name')
-        timenow = datetime.now().strftime("%H:%M")
+        local_tz = pytz.timezone('Asia/Tashkent') # замените на вашу временную зону
+        local_time = datetime.now(local_tz)
+        timenow = local_time.strftime("%H:%M")
         await set_order_delivered_time(order['id'], receiver_name)
         await callback.message.answer(
             text=f"Доставка получена в {timenow}"
@@ -170,7 +178,7 @@ async def send_start_message(message: Message, state: FSMContext):
 async def send_success_subscribe_message(message: Message, state: FSMContext, chosen_customer: str, customer_description: str):
     await message.answer(
         text=f"Привет {message.from_user.full_name}!\n"
-        f"Вы привязаны к заведению {customer_description}"
+        f"Вы привязаны к заведению {customer_description}",
     )
     order = await get_today_order_by_customer_title(chosen_customer)
     if order:

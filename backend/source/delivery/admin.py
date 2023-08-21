@@ -1,6 +1,4 @@
-from typing import Optional
 from django.contrib import admin
-from django.http.request import HttpRequest
 from delivery.models import Customer, TgService, Order, Schedule, DeliverySchedule
 from django.contrib import admin
 

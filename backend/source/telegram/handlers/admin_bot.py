@@ -12,22 +12,11 @@ from helpers import (
 )
 from keyboards import buttons
 from keyboards.filters import MyCallback
-
-ADMIN_USERS = ('88938160', '448321560', '214125454')
+from config import ADMIN_USERS
 
 router = Router()
 
 # Вход в админ панель
-
-
-@router.message(Command("admin"))
-async def cmd_admin(message: Message, state: FSMContext):
-    await send_admin_message(message, state)
-
-# Обработчики
-
-# TODO исправить delivered_time
-# Отчет о сегодняшних доставках
 
 
 @router.callback_query(MyCallback.filter(F.title == "list_today_orders"))
@@ -42,7 +31,8 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
     # Формирование сообщения с заказами
     message_text = "Доставки на сегодня:\n\n"
     for possible_order in list_today_possible_orders:
-        customer_name = possible_order.get("customer_description")
+        customer_name = possible_order.get("customer")
+        customer_description = possible_order.get("customer_description")
         schedules_text = f"Заказчик {customer_name}:\n"
         for schedule in possible_order.get("delivery_schedule"):
             schedule_time = schedule.get("schedule_time")
@@ -51,9 +41,11 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
             if today_order:
                 delivered_time = today_order.get("delivered_time")
                 overdue_time = today_order.get("overdue_time")
+                receiver_name = f'({today_order.get("receiver_name")})'
             else:
                 delivered_time = None
                 overdue_time = None
+                receiver_name = ""
 
             if not delivered_time:
                 status = "\U000023F3"  # Значок часов, если нет времени доставки
@@ -61,8 +53,9 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
                 status = f"{datetime.fromisoformat(delivered_time).strftime('%H:%M')}"
                 if overdue_time:
                     # Если есть время просрочки, добавляем значок восклицательного знака
-                    status += f" \U00002757 {convert_to_time_string(overdue_time)} \U00002757"
+                    status += f" \U00002757 {convert_to_time_string(overdue_time)} \U00002757 "
                     # '00:49:10.420511' to seconds
+                    status += receiver_name
 
                 else:
                     # Если нет времени просрочки, добавляем значок галочки
