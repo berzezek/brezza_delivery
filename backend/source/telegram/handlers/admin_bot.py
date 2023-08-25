@@ -55,11 +55,11 @@ async def list_today_orders(callback: CallbackQuery, state: FSMContext):
                     # Если есть время просрочки, добавляем значок восклицательного знака
                     status += f" \U00002757 {convert_to_time_string(overdue_time)} \U00002757 "
                     # '00:49:10.420511' to seconds
-                    status += receiver_name
-
                 else:
                     # Если нет времени просрочки, добавляем значок галочки
                     status += " " + "\U00002705  " * 3
+                # Добавляем имя получателя
+                status += receiver_name
             schedules_text += f"• {schedule_time[:-3]} - {status}\n"
 
         message_text += schedules_text + "\n"

@@ -167,11 +167,11 @@ async def get_list_orders(session, range: str):
 @aiohttp_session
 async def get_today_order_by_customer_title(session, customer_title: int):
     try:
-        async with session.get(f'{HOST_URL}/api/v1/orders?customer={customer_title}&list=today&delivered=false') as response:
+        async with session.get(f'{HOST_URL}/api/v1/orders?customer={customer_title}&list=today') as response:
             if response.status == 200:
                 shipments = await response.json()
                 if len(shipments) > 0:
-                    return shipments[0]
+                    return shipments[-1]
             else:
                 print(f"Error: {response.status}")
     except Exception as e:
