@@ -169,9 +169,11 @@ async def get_today_order_by_customer_title(session, customer_title: int):
     try:
         async with session.get(f'{HOST_URL}/api/v1/orders?customer={customer_title}&list=today') as response:
             if response.status == 200:
-                shipments = await response.json()
-                if len(shipments) > 0:
-                    return shipments[-1]
+                orders = await response.json()
+                if len(orders) > 0:
+                    order = orders[-1]
+                    if order.get('delivered_time') is None:
+                        return order
             else:
                 print(f"Error: {response.status}")
     except Exception as e:
