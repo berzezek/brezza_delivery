@@ -171,7 +171,7 @@ async def get_today_order_by_customer_title(session, customer_title: int):
             if response.status == 200:
                 orders = await response.json()
                 if len(orders) > 0:
-                    order = orders[-1]
+                    order = orders[0]
                     if order.get('delivered_time') is None:
                         return order
             else:
