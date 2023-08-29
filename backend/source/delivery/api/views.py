@@ -71,6 +71,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             # filter queryset must be gte today
             queryset = queryset.filter(dead_line__gte=datetime.now(pytz.timezone('Asia/Tashkent')))
             queryset = queryset.annotate(weekday=ExtractWeekDay('dead_line', output_field=IntegerField())).filter(weekday=today_weekday)
+        elif list_range == 'yesterday':
+            today_weekday = datetime.now(pytz.timezone('Asia/Tashkent')).isoweekday() % 7 + 1  # Convert to Django's week day numbering
+            yesterday_weekday = today_weekday - 1
+            queryset = queryset.annotate(weekday=ExtractWeekDay('dead_line', output_field=IntegerField())).filter(weekday=yesterday_weekday)
         if delivered == 'false':
             queryset = queryset.filter(delivered_time__isnull=True)
         if schedule_time:
