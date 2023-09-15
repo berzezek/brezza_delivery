@@ -56,6 +56,9 @@ async def cmd_start(message: Message, state: FSMContext):
 async def cmd_status(message: Message, state: FSMContext):
     data = await state.get_data()
     chosen_customer = data.get('chosen_customer')
+    if chosen_customer == 'brezza':
+        await send_admin_message(message, state)
+        return
     chosen_customer_description = data.get('chosen_customer_description')
     if chosen_customer and chosen_customer_description:
         await send_success_subscribe_message(message, state, chosen_customer, chosen_customer_description)
@@ -79,6 +82,8 @@ async def customer_enter(message: Message, state: FSMContext):
     customer_lower = message.text.lower()
     # Проверяем админа
     if customer_lower == 'brezza':
+        # Сохраняем имя в состояние chosen_customer
+        await state.update_data(chosen_customer='brezza')
         await send_admin_message(message, state)
         return
 
